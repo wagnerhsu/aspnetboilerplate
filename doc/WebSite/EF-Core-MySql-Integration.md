@@ -7,11 +7,19 @@ will be explained in this document.
 
 ### Getting Started
 
-There are many [Entity Framework Core providers for MySQL](https://docs.microsoft.com/en-us/ef/core/providers/index) that are mentioned in the Micrososft Docs. In this document the [official one](https://www.nuget.org/packages/MySql.Data.EntityFrameworkCore) is explained.
+There are two Entity Framework Core providers for MySQL that are mentioned in the Micrososft Docs. One of them is the
+[Official MySQL EF Core Database Provider](https://docs.microsoft.com/en-us/ef/core/providers/mysql/) and the
+other is [Pomelo EF Core Database Provider for MySQL](https://docs.microsoft.com/en-us/ef/core/providers/pomelo/).
+
+> **NOTE:** The official provider [`MySql.Data.EntityFrameworkCore`](https://www.nuget.org/packages/MySql.Data.EntityFrameworkCore) [supports EF Core 2.0 after version 6.10.5](https://dev.mysql.com/doc/connector-net/en/connector-net-entityframework-core.html), but you have to make a lot of changes when using it. So, the Pomelo EF Core Database Provider will be used in this example instead.
+> 
+> Related issue: https://github.com/aspnetboilerplate/aspnetboilerplate/issues/4007
+>
+> Related guide:  https://dev.mysql.com/doc/connector-net/en/connector-net-entityframework-core.html
 
 ### Install 
 
-Install the [`MySql.Data.EntityFrameworkCore`](https://www.nuget.org/packages/MySql.Data.EntityFrameworkCore) NuGet package to the ***.EntityFrameworkCore** project. 
+Install the [`Pomelo.EntityFrameworkCore.MySql`](https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql/) NuGet package to the ***.EntityFrameworkCore** project. 
 
 ### Configuration
 
@@ -24,12 +32,12 @@ public static class MySqlDemoDbContextConfigurer
 {
     public static void Configure(DbContextOptionsBuilder<MySqlDemoDbContext> builder, string connectionString)
     {
-        builder.UseMySQL(connectionString);
+        builder.UseMySql(connectionString);
     }
 
     public static void Configure(DbContextOptionsBuilder<MySqlDemoDbContext> builder, DbConnection connection)
     {
-        builder.UseMySQL(connection);
+        builder.UseMySql(connection);
     }
  }
  ```
@@ -63,8 +71,8 @@ To understand why it needs to be renamed, check the following issues:
 
 ### Create Database
 
-Remove all migration classes under **\*.EntityFrameworkCore/Migrations** folder. 
-Because `MySql.Data.EntityFrameworkCore` will add some of its own configurations to work with Entity Framework Core.
+Remove all migration classes (including DbContextModelSnapshot) under **\*.EntityFrameworkCore/Migrations** folder; generally, you can remove all files in that folder.
+Because `Pomelo.EntityFrameworkCore.MySql` will add some of its own configurations to work with Entity Framework Core.
 
 Now it's ready to build the database.
 
