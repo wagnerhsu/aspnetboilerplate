@@ -7,11 +7,13 @@ using Abp.Authorization;
 using Abp.Authorization.Roles;
 using Abp.Authorization.Users;
 using Abp.Configuration;
+using Abp.DynamicEntityProperties;
 using Abp.EntityFramework;
 using Abp.Localization;
 using Abp.Notifications;
 using Abp.Organizations;
 using Abp.EntityFramework.Extensions;
+using Abp.Webhooks;
 
 namespace Abp.Zero.EntityFramework
 {
@@ -126,12 +128,46 @@ namespace Abp.Zero.EntityFramework
         public virtual DbSet<NotificationSubscriptionInfo> NotificationSubscriptions { get; set; }
 
         /// <summary>
+        /// Webhook information
+        /// </summary>
+        public virtual DbSet<WebhookEvent> WebhookEvents { get; set; }
+
+        /// <summary>
+        /// Web subscriptions
+        /// </summary>
+        public virtual DbSet<WebhookSubscriptionInfo> WebhookSubscriptions { get; set; }
+
+        /// <summary>
+        /// Webhook work items
+        /// </summary>
+        public virtual DbSet<WebhookSendAttempt> WebhookSendAttempts { get; set; }
+
+        /// <summary>
+        /// DynamicProperties
+        /// </summary>
+        public virtual DbSet<DynamicProperty> DynamicProperties { get; set; }
+
+        /// <summary>
+        /// DynamicProperty selectable values
+        /// </summary>
+        public virtual DbSet<DynamicPropertyValue> DynamicPropertyValues { get; set; }
+
+        /// <summary>
+        /// Entities dynamic properties. Which property that entity has
+        /// </summary>
+        public virtual DbSet<DynamicEntityProperty> DynamicEntityProperties { get; set; }
+
+        /// <summary>
+        /// Entities dynamic properties values
+        /// </summary>
+        public virtual DbSet<DynamicEntityPropertyValue> DynamicEntityPropertyValues { get; set; }
+
+        /// <summary>
         /// Default constructor.
         /// Do not directly instantiate this class. Instead, use dependency injection!
         /// </summary>
         protected AbpZeroCommonDbContext()
         {
-
         }
 
         /// <summary>
@@ -141,13 +177,11 @@ namespace Abp.Zero.EntityFramework
         protected AbpZeroCommonDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
-
         }
 
         protected AbpZeroCommonDbContext(DbCompiledModel model)
             : base(model)
         {
-
         }
 
         /// <summary>
@@ -156,13 +190,11 @@ namespace Abp.Zero.EntityFramework
         protected AbpZeroCommonDbContext(DbConnection existingConnection, bool contextOwnsConnection)
             : base(existingConnection, contextOwnsConnection)
         {
-
         }
 
         protected AbpZeroCommonDbContext(string nameOrConnectionString, DbCompiledModel model)
             : base(nameOrConnectionString, model)
         {
-
         }
 
         protected AbpZeroCommonDbContext(ObjectContext objectContext, bool dbContextOwnsObjectContext)
@@ -309,7 +341,7 @@ namespace Abp.Zero.EntityFramework
 
             #endregion
 
-            #region NotificationSubscriptionInfo.IX_TenantId_NotificationName_EntityTypeName_EntityId_UserId 
+            #region NotificationSubscriptionInfo.IX_TenantId_NotificationName_EntityTypeName_EntityId_UserId
 
             modelBuilder.Entity<NotificationSubscriptionInfo>()
                 .Property(e => e.TenantId)
@@ -552,7 +584,7 @@ namespace Abp.Zero.EntityFramework
                 .CreateIndex("IX_TenantId_UserId", 2);
 
             modelBuilder.Entity<Setting>()
-                .HasIndex(e => new { e.TenantId, e.Name, e.UserId })
+                .HasIndex(e => new {e.TenantId, e.Name, e.UserId})
                 .IsUnique();
 
             #endregion
@@ -602,6 +634,18 @@ namespace Abp.Zero.EntityFramework
             modelBuilder.Entity<UserToken>()
                 .Property(e => e.UserId)
                 .CreateIndex("IX_TenantId_UserId", 2);
+
+            #endregion
+
+            #region DynamicEntityProperties
+
+            modelBuilder.Entity<DynamicProperty>()
+                .HasIndex(e => new {e.PropertyName, e.TenantId})
+                .IsUnique();
+
+            modelBuilder.Entity<DynamicEntityProperty>()
+                .HasIndex(e => new {e.EntityFullName, e.DynamicPropertyId, e.TenantId})
+                .IsUnique();
 
             #endregion
         }

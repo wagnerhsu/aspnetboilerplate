@@ -33,6 +33,8 @@ Domain Layer
 -   [Unit Of Work](Unit-Of-Work.md)
 -   [Domain Events (EventBus)](EventBus-Domain-Events.md)
 -   [Data Filters](Data-Filters.md)
+-   [Dynamic Parameter System](Dynamic-Parameter-System.md)
+-   [Object Comparators](ObjectComparators.md)
 
 Application Layer
 
@@ -42,7 +44,7 @@ Application Layer
 -   [Authorization](Authorization.md)
 -   [Feature Management](Feature-Management.md)
 -   [Audit Logging](Audit-Logging.md)
--   [Entity History <label class="label label-success">New</label>](Entity-History.md)
+-   [Entity History](Entity-History.md)
 
 Distributed Service Layer
 
@@ -62,7 +64,7 @@ ASP.NET MVC
 ASP.NET Core
 
 -   [ASP.NET Core Integration](AspNet-Core.md)
--   [ASP.NET Core OData Integration  <label class="label label-success">New</label>](OData-AspNetCore-Integration.md)
+-   [ASP.NET Core OData Integration](OData-AspNetCore-Integration.md)
 
 
 -   [Localization](Localization.md)
@@ -82,7 +84,8 @@ Real Time Services
 
 -   [Notification System](Notification-System.md)
 -   [SignalR Integration](SignalR-Integration.md)
--   [SignalR ASP.NET Core Integration <label class="label label-success">New</label>](SignalR-AspNetCore-Integration.md)
+-   [SignalR ASP.NET Core Integration](SignalR-AspNetCore-Integration.md)
+-   [Webhooks](Webhook-System.md)
 
 Object-Relational Mapping
 
@@ -116,7 +119,8 @@ Features
   -   [Organization Unit Management](/Pages/Documents/Zero/Organization-Units)
   -   [Permission Management](/Pages/Documents/Zero/Permission-Management)
   -   [Language Management](/Pages/Documents/Zero/Language-Management)
-  -   [Identity Server Integration <label class="label label-success">New</label>](Zero/Identity-Server.md)
+  -   [Identity Server Integration](Zero/Identity-Server.md)
+  -   [Identity Server vNext Integration](Zero/Identity-Server-vNext.md)
 
 Releases
 

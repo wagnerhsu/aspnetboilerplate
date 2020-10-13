@@ -15,6 +15,8 @@ using Abp.Notifications;
 using Abp.Organizations;
 using System.Threading;
 using System.Threading.Tasks;
+using Abp.DynamicEntityProperties;
+using Abp.Webhooks;
 
 namespace Abp.Zero.EntityFramework
 {
@@ -140,12 +142,46 @@ namespace Abp.Zero.EntityFramework
         public IEntityHistoryHelper EntityHistoryHelper { get; set; }
 
         /// <summary>
+        /// Webhook information
+        /// </summary>
+        public virtual IDbSet<WebhookEvent> WebhookEvents { get; set; }
+
+        /// <summary>
+        /// Web subscriptions
+        /// </summary>
+        public virtual IDbSet<WebhookSubscriptionInfo> WebhookSubscriptions { get; set; }
+
+        /// <summary>
+        /// Webhook work items
+        /// </summary>
+        public virtual IDbSet<WebhookSendAttempt> WebhookSendAttempts { get; set; }
+
+        /// <summary>
+        /// DynamicParameters
+        /// </summary>
+        public virtual IDbSet<DynamicProperty> DynamicProperties { get; set; }
+
+        /// <summary>
+        /// DynamicProperty selectable values
+        /// </summary>
+        public virtual IDbSet<DynamicPropertyValue> DynamicPropertyValues { get; set; }
+
+        /// <summary>
+        /// Entities dynamic parameters. Which parameters that entity has
+        /// </summary>
+        public virtual IDbSet<DynamicEntityProperty> DynamicEntityProperties { get; set; }
+
+        /// <summary>
+        /// Entities dynamic parameter's values
+        /// </summary>
+        public virtual IDbSet<DynamicEntityPropertyValue> DynamicEntityPropertyValues { get; set; }
+
+        /// <summary>
         /// Default constructor.
         /// Do not directly instantiate this class. Instead, use dependency injection!
         /// </summary>
         protected AbpZeroCommonDbContext()
         {
-
         }
 
         /// <summary>
@@ -155,13 +191,11 @@ namespace Abp.Zero.EntityFramework
         protected AbpZeroCommonDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
-
         }
 
         protected AbpZeroCommonDbContext(DbCompiledModel model)
             : base(model)
         {
-
         }
 
         /// <summary>
@@ -170,13 +204,11 @@ namespace Abp.Zero.EntityFramework
         protected AbpZeroCommonDbContext(DbConnection existingConnection, bool contextOwnsConnection)
             : base(existingConnection, contextOwnsConnection)
         {
-
         }
 
         protected AbpZeroCommonDbContext(string nameOrConnectionString, DbCompiledModel model)
             : base(nameOrConnectionString, model)
         {
-
         }
 
         protected AbpZeroCommonDbContext(ObjectContext objectContext, bool dbContextOwnsObjectContext)
@@ -256,7 +288,7 @@ namespace Abp.Zero.EntityFramework
                 .HasForeignKey(e => e.EntityChangeSetId);
 
             #region EntityChangeSet.IX_TenantId_UserId
-            
+
             modelBuilder.Entity<EntityChangeSet>()
                 .Property(e => e.TenantId)
                 .CreateIndex("IX_TenantId_UserId", 1);
@@ -300,7 +332,15 @@ namespace Abp.Zero.EntityFramework
             #endregion
 
             modelBuilder.Entity<Setting>()
-                .HasIndex(e => new { e.TenantId, e.Name, e.UserId })
+                .HasIndex(e => new {e.TenantId, e.Name, e.UserId})
+                .IsUnique();
+
+            modelBuilder.Entity<DynamicProperty>()
+                .HasIndex(e => new {e.PropertyName, e.TenantId})
+                .IsUnique();
+
+            modelBuilder.Entity<DynamicEntityProperty>()
+                .HasIndex(e => new {e.EntityFullName, e.DynamicPropertyId, e.TenantId})
                 .IsUnique();
         }
     }

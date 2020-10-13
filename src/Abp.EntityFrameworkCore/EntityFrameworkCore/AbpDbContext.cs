@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,12 +12,14 @@ using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.EntityFramework;
 using Abp.EntityFrameworkCore.Extensions;
+using Abp.EntityFrameworkCore.Utils;
+using Abp.EntityFrameworkCore.ValueConverters;
 using Abp.Events.Bus;
 using Abp.Events.Bus.Entities;
 using Abp.Extensions;
 using Abp.Linq.Expressions;
-using Abp.Reflection;
 using Abp.Runtime.Session;
 using Abp.Timing;
 using Castle.Core.Logging;
@@ -31,7 +32,7 @@ namespace Abp.EntityFrameworkCore
     /// <summary>
     /// Base class for all DbContext classes in the application.
     /// </summary>
-    public abstract class AbpDbContext : DbContext, ITransientDependency
+    public abstract class AbpDbContext : DbContext, ITransientDependency, IShouldInitializeDcontext
     {
         /// <summary>
         /// Used to get current session values.
@@ -84,6 +85,8 @@ namespace Abp.EntityFrameworkCore
 
         private static MethodInfo ConfigureGlobalFiltersMethodInfo = typeof(AbpDbContext).GetMethod(nameof(ConfigureGlobalFilters), BindingFlags.Instance | BindingFlags.NonPublic);
 
+        private static MethodInfo ConfigureGlobalValueConverterMethodInfo = typeof(AbpDbContext).GetMethod(nameof(ConfigureGlobalValueConverter), BindingFlags.Instance | BindingFlags.NonPublic);
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -116,6 +119,10 @@ namespace Abp.EntityFrameworkCore
                 ConfigureGlobalFiltersMethodInfo
                     .MakeGenericMethod(entityType.ClrType)
                     .Invoke(this, new object[] { modelBuilder, entityType });
+
+                ConfigureGlobalValueConverterMethodInfo
+                    .MakeGenericMethod(entityType.ClrType)
+                    .Invoke(this, new object[] { modelBuilder, entityType });
             }
         }
 
@@ -127,9 +134,9 @@ namespace Abp.EntityFrameworkCore
                 var filterExpression = CreateFilterExpression<TEntity>();
                 if (filterExpression != null)
                 {
-                    if (entityType.IsQueryType)
+                    if (entityType.IsKeyless)
                     {
-                        modelBuilder.Query<TEntity>().HasQueryFilter(filterExpression);
+                        modelBuilder.Entity<TEntity>().HasQueryFilter(filterExpression);
                     }
                     else
                     {
@@ -185,6 +192,26 @@ namespace Abp.EntityFrameworkCore
             return expression;
         }
 
+        protected void ConfigureGlobalValueConverter<TEntity>(ModelBuilder modelBuilder, IMutableEntityType entityType)
+            where TEntity : class
+        {
+            if (entityType.BaseType == null && 
+                !typeof(TEntity).IsDefined(typeof(DisableDateTimeNormalizationAttribute), true) &&
+                !typeof(TEntity).IsDefined(typeof(OwnedAttribute), true) &&
+                !entityType.IsOwned())
+            {
+                var dateTimeValueConverter = new AbpDateTimeValueConverter();
+                var dateTimePropertyInfos = DateTimePropertyInfoHelper.GetDatePropertyInfos(typeof(TEntity));
+                dateTimePropertyInfos.DateTimePropertyInfos.ForEach(property =>
+                {
+                    modelBuilder
+                        .Entity<TEntity>()
+                        .Property(property.Name)
+                        .HasConversion(dateTimeValueConverter);
+                });
+            }
+        }
+
         public override int SaveChanges()
         {
             try
@@ -215,6 +242,19 @@ namespace Abp.EntityFrameworkCore
             }
         }
 
+        public virtual void Initialize(AbpEfDbContextInitializationContext initializationContext)
+        {
+            var uowOptions = initializationContext.UnitOfWork.Options;
+            if (uowOptions.Timeout.HasValue &&
+                Database.IsRelational() && 
+                !Database.GetCommandTimeout().HasValue)
+            {
+                Database.SetCommandTimeout(uowOptions.Timeout.Value.TotalSeconds.To<int>());
+            }
+            
+            ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+        }
+        
         protected virtual EntityChangeReport ApplyAbpConcepts()
         {
             var changeReport = new EntityChangeReport();
@@ -290,6 +330,11 @@ namespace Abp.EntityFrameworkCore
 
         protected virtual bool IsHardDeleteEntity(EntityEntry entry)
         {
+            if (!EntityHelper.IsEntity(entry.Entity.GetType()))
+            {
+                return false;
+            }
+            
             if (CurrentUnitOfWorkProvider?.Current?.Items == null)
             {
                 return false;

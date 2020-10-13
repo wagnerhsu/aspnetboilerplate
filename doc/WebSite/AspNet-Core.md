@@ -9,7 +9,7 @@ package.
 
 If you have an existing project and are considering migrating to ASP.NET
 Core, you can read our [blog
-post](http://volosoft.com/migrating-from-asp-net-mvc-5x-to-asp-net-core/)
+post](https://medium.com/volosoft/migrating-from-asp-net-mvc-5-x-to-asp-net-core-520c9aa65e2c)
 about our experience on migrating.
 
 ### Startup Template
@@ -116,6 +116,13 @@ required for the ASP.NET Core integration.  The MVC attributes should be
 added to the service classes, even if you have interfaces.
 
 **Note**: To use Mvc datetime format options, you can set this property `Configuration.Modules.AbpAspNetCore().UseMvcDateTimeFormatForAppServices`. Its default value is `false`. 
+
+Abp provides a convenient way for you to configure the default Cache-Control header for all **ApplicationService** and **Controller** via **IAbpAspNetCoreConfiguration**
+- **DefaultResponseCacheAttributeForAppServices**: Used if **Controller** class does not define **Microsoft.AspNetCore.Mvc.ResponseCacheAttribute**
+- **DefaultResponseCacheAttributeForControllers**: Used if **ApplicationService** class does not define **Microsoft.AspNetCore.Mvc.ResponseCacheAttribute**
+
+**Note**: Cache-Control is not configured by default. You may configure for all **ApplicationService** and **Controller** then
+use **Microsoft.AspNetCore.Mvc.ResponseCacheAttribute** at method/action level to override it.
 
 ### Filters
 

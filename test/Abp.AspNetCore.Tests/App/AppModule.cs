@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Abp.AspNetCore.App.MultiTenancy;
+﻿using Abp.AspNetCore.App.MultiTenancy;
 using Abp.AspNetCore.TestBase;
 using Abp.Configuration.Startup;
 using Abp.Modules;
@@ -11,6 +10,7 @@ using Abp.Localization;
 using Abp.MultiTenancy;
 using Abp.Reflection.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Abp.AspNetCore.App
 {
@@ -30,11 +30,13 @@ namespace Abp.AspNetCore.App
                     typeof(AppModule).GetAssembly()
                 );
 
-            Configuration.IocManager.Resolve<IAbpAspNetCoreConfiguration>().RouteConfiguration.Add(routes =>
+            Configuration.Modules.AbpAspNetCore().DefaultResponseCacheAttributeForAppServices = new ResponseCacheAttribute() { NoStore = true, Location = ResponseCacheLocation.None };
+
+            Configuration.IocManager.Resolve<IAbpAspNetCoreConfiguration>().EndpointConfiguration.Add(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
 

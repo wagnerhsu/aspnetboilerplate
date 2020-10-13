@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <Import Project="..\..\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Abp.EntityFrameworkCore.EFPlus</AssemblyName>
     <PackageId>Abp.EntityFrameworkCore.EFPlus</PackageId>
@@ -21,18 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="2.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="SourceLink.Create.CommandLine" Version="2.8.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="bin\Release\netstandard2.0\Abp.EntityFrameworkCore.EFPlus.pdb">
-      <PackagePath>lib/netstandard2.0/</PackagePath>
-      <Pack>true</Pack>
-    </None>
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.52" />
   </ItemGroup>
 
   <ItemGroup>

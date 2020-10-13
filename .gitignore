@@ -13,7 +13,9 @@ project.lock.json
 
 # Nuget packages
 nupkg/*.nupkg
+nupkg/*.snupkg
 nupkg/push.bat
+nupkg/push.ps1
 
 # Profile images
 ProfileImages/

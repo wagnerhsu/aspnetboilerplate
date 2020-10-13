@@ -19,13 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="bin\Release\net461\Abp.Zero.EntityFramework.pdb">
-      <PackagePath>lib/net461/</PackagePath>
-      <Pack>true</Pack>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Abp.EntityFramework\Abp.EntityFramework.csproj" />
     <ProjectReference Include="..\Abp.Zero\Abp.Zero.csproj" />
   </ItemGroup>
@@ -38,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="SourceLink.Create.CommandLine" Version="2.8.3" />
+    <PackageReference Update="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

@@ -7,7 +7,6 @@ using Castle.Windsor.MsDependencyInjection;
 using Abp.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +14,7 @@ using Abp.Collections.Extensions;
 using Abp.Web.Api.ProxyScripting.Generators;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 
 namespace Abp.AspNetCore.Mvc.Conventions
 {
@@ -45,6 +45,7 @@ namespace Abp.AspNetCore.Mvc.Conventions
                     controller.ControllerName = controller.ControllerName.RemovePostFix(ApplicationService.CommonPostfixes);
                     configuration?.ControllerModelConfigurer(controller);
 
+                    ConfigureCacheControl(controller, _configuration.Value.DefaultResponseCacheAttributeForAppServices);
                     ConfigureArea(controller, configuration);
                     ConfigureRemoteService(controller, configuration);
                 }
@@ -53,10 +54,26 @@ namespace Abp.AspNetCore.Mvc.Conventions
                     var remoteServiceAtt = ReflectionHelper.GetSingleAttributeOrDefault<RemoteServiceAttribute>(type.GetTypeInfo());
                     if (remoteServiceAtt != null && remoteServiceAtt.IsEnabledFor(type))
                     {
+                        ConfigureCacheControl(controller, _configuration.Value.DefaultResponseCacheAttributeForControllers);
                         ConfigureRemoteService(controller, configuration);
                     }
                 }
             }
+        }
+
+        private void ConfigureCacheControl(ControllerModel controller, ResponseCacheAttribute responseCacheAttribute)
+        {
+            if (responseCacheAttribute == null)
+            {
+                return;
+            }
+
+            if (controller.Filters.Any(filter => typeof(ResponseCacheAttribute).IsAssignableFrom(filter.GetType())))
+            {
+                return;
+            }
+
+            controller.Filters.Add(responseCacheAttribute);
         }
 
         private void ConfigureArea(ControllerModel controller, [CanBeNull] AbpControllerAssemblySetting configuration)
